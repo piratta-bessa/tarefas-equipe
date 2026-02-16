@@ -3,72 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casa Nova - Sistema de Gestão</title>
+    <title>Casa Nova - Cloud</title>
     <style>
         body { font-family: sans-serif; background-color: #002855; color: white; margin: 0; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
-        h2 { text-align: center; color: white; margin-bottom: 5px; }
-        .sub-titulo { text-align: center; font-size: 0.8em; color: #f39200; font-weight: bold; margin-bottom: 20px; }
-        
-        .card, .form-box { background: white; color: #333; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 6px solid #f39200; }
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        .btn-primary { background: #002855; color: white; }
-        .btn-action { background: #f39200; color: white; }
-        .btn-whatsapp { background: #25D366; color: white; margin-top: 20px; }
-        .btn-outline { background: transparent; border: 1px solid #f39200; color: white; margin-bottom: 10px; }
-        
+        h2 { text-align: center; margin-bottom: 5px; }
+        .sub-titulo { text-align: center; font-size: 0.8em; color: #f39200; font-weight: bold; margin-bottom: 25px; }
+        .card { background: white; color: #333; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid #f39200; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .form-box { background: white; color: #333; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .btn-action { width: 100%; background: #f39200; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .btn-outline { background: transparent; border: 1px solid #f39200; color: white; width: 100%; padding: 10px; border-radius: 8px; margin-bottom: 20px; cursor: pointer; }
         .hidden { display: none; }
-        .user-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>CASA NOVA</h2>
-    <div class="sub-titulo">SISTEMA DE ACESSO</div>
+    <div class="sub-titulo">LOCAL DE EXPERIÊNCIAS</div>
 
     <div id="view-login" class="form-box">
-        <h3 style="margin-top:0">Login</h3>
-        <input type="text" id="login-user" placeholder="Nome de Utilizador">
-        <input type="password" id="login-pass" placeholder="Senha">
-        <button class="btn btn-primary" onclick="fazerLogin()">ENTRAR</button>
+        <h3 style="margin:0 0 15px 0; color:#002855">Entrar</h3>
+        <input type="text" id="user-name" placeholder="Seu Nome (Maiúsculo)">
+        <button class="btn-action" onclick="fazerLogin()">ACESSAR</button>
     </div>
 
-    <div id="view-colab" class="hidden">
-        <button class="btn btn-outline" onclick="logout()">Sair / Trocar Usuário</button>
-        <h3 id="boas-vindas" style="color: #f39200;"></h3>
-        <div id="lista-tarefas-hoje"></div>
-        <button class="btn btn-whatsapp" onclick="enviarWhatsapp()">📱 ENVIAR RELATÓRIO</button>
-        <hr>
-        <button class="btn btn-outline" style="font-size:12px" onclick="alterarPropriaSenha()">Alterar Minha Senha</button>
-    </div>
-
-    <div id="view-gestor" class="hidden">
-        <button class="btn btn-outline" onclick="logout()">Sair</button>
-        <h3 style="color: #f39200;">Painel Administrativo</h3>
+    <div id="view-app" class="hidden">
+        <button class="btn-outline" onclick="location.reload()">⬅ Sair / Trocar Usuário</button>
         
-        <div class="form-box" style="border-left-color: #002855;">
-            <h4>Criar Novo Usuário</h4>
-            <input type="text" id="new-username" placeholder="Nome do Colaborador">
-            <input type="password" id="new-password" placeholder="Senha Inicial">
-            <select id="new-role">
-                <option value="colab">Colaborador</option>
-                <option value="gestor">Gestor</option>
-            </select>
-            <button class="btn btn-primary" onclick="cadastrarUsuario()">CADASTRAR USUÁRIO</button>
-        </div>
-
-        <div class="form-box" style="border-left-color: #002855;">
-            <h4>Gerenciar Usuários (Resetar Senha)</h4>
-            <div id="lista-usuarios-admin"></div>
-        </div>
-
-        <div class="form-box" style="border-left-color: #002855;">
-            <h4>Nova Tarefa</h4>
+        <div id="panel-admin" class="form-box hidden">
+            <h4 style="margin:0 0 10px 0; color:#002855">Cadastrar Tarefa na Nuvem</h4>
             <input type="text" id="task-name" placeholder="Atividade">
-            <select id="task-user" placeholder="Para quem?"></select>
+            <input type="text" id="task-dest" placeholder="Para qual Colaborador?">
             <select id="task-freq">
                 <option value="diaria">Diária</option>
                 <option value="Monday">Segunda</option><option value="Tuesday">Terça</option>
@@ -76,134 +43,99 @@
                 <option value="Friday">Sexta</option><option value="Saturday">Sábado</option>
                 <option value="Sunday">Domingo</option>
             </select>
-            <button class="btn btn-action" onclick="cadastrarTarefa()">SALVAR TAREFA</button>
+            <button class="btn-action" id="btn-save">ENVIAR PARA NUVEM</button>
+        </div>
+
+        <div id="lista-tarefas">
+            <p style="text-align:center">Carregando tarefas da nuvem...</p>
         </div>
     </div>
 </div>
 
-<script>
-    // Inicialização da "Base de Dados"
-    let usuarios = JSON.parse(localStorage.getItem('cn_usuarios')) || [
-        {nome: "ADMIN", senha: "123", role: "gestor"}
-    ];
-    let tarefas = JSON.parse(localStorage.getItem('cn_tarefas')) || [];
-    let concluidasHoje = [];
-    let usuarioLogado = null;
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // --- SISTEMA DE LOGIN ---
-    function fazerLogin() {
-        const u = document.getElementById('login-user').value.toUpperCase();
-        const p = document.getElementById('login-pass').value;
-        const user = usuarios.find(x => x.nome === u && x.senha === p);
+    // --- COLA AS TUAS CREDENCIAIS AQUI ---
+    const firebaseConfig = {
+        apiKey: "SUA_API_KEY",
+        authDomain: "SEU_PROJETO.firebaseapp.com",
+        projectId: "SEU_PROJETO",
+        storageBucket: "SEU_PROJETO.appspot.com",
+        messagingSenderId: "SEU_ID",
+        appId: "SEU_APP_ID"
+    };
 
-        if(user) {
-            usuarioLogado = user;
-            document.getElementById('view-login').classList.add('hidden');
-            if(user.role === 'gestor') {
-                abrirGestor();
-            } else {
-                abrirColab();
-            }
-        } else { alert("Usuário ou senha incorretos!"); }
-    }
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    function logout() { location.reload(); }
+    let usuarioAtual = "";
 
-    // --- FUNÇÕES DO GESTOR ---
-    function abrirGestor() {
-        document.getElementById('view-gestor').classList.remove('hidden');
-        atualizarListasAdmin();
-    }
+    window.fazerLogin = function() {
+        const nome = document.getElementById('user-name').value.trim().toUpperCase();
+        if(!nome) return alert("Digite seu nome!");
 
-    function cadastrarUsuario() {
-        const n = document.getElementById('new-username').value.toUpperCase();
-        const s = document.getElementById('new-password').value;
-        const r = document.getElementById('new-role').value;
-        if(!n || !s) return alert("Preencha tudo!");
-        
-        usuarios.push({nome: n, senha: s, role: r});
-        localStorage.setItem('cn_usuarios', JSON.stringify(usuarios));
-        alert("Usuário cadastrado!");
-        atualizarListasAdmin();
-    }
-
-    function resetarSenha(nome) {
-        const novaS = prompt("Digite a nova senha para " + nome);
-        if(novaS) {
-            const idx = usuarios.findIndex(u => u.nome === nome);
-            usuarios[idx].senha = novaS;
-            localStorage.setItem('cn_usuarios', JSON.stringify(usuarios));
-            alert("Senha alterada!");
+        if(nome === "ADMIN") {
+            const senha = prompt("Senha de Gestor:");
+            if(senha !== "1234") return alert("Senha incorreta!");
+            document.getElementById('panel-admin').classList.remove('hidden');
         }
+
+        usuarioAtual = nome;
+        document.getElementById('view-login').classList.add('hidden');
+        document.getElementById('view-app').classList.remove('hidden');
+        iniciarEscutaNuvem();
     }
 
-    function atualizarListasAdmin() {
-        const listaU = document.getElementById('lista-usuarios-admin');
-        const selectU = document.getElementById('task-user');
-        listaU.innerHTML = "";
-        selectU.innerHTML = "";
-        
-        usuarios.forEach(u => {
-            listaU.innerHTML += `<div class="user-item"><span>${u.nome} (${u.role})</span> <button onclick="resetarSenha('${u.nome}')">Senha 🔑</button></div>`;
-            selectU.innerHTML += `<option value="${u.nome}">${u.nome}</option>`;
+    // SALVAR NA NUVEM
+    document.getElementById('btn-save').onclick = async () => {
+        const nome = document.getElementById('task-name').value;
+        const para = document.getElementById('task-dest').value.trim().toUpperCase();
+        const freq = document.getElementById('task-freq').value;
+
+        if(!nome || !para) return alert("Preencha tudo!");
+
+        await addDoc(collection(db, "tarefas"), {
+            nome: nome,
+            responsavel: para,
+            freq: freq,
+            timestamp: Date.now()
         });
-    }
 
-    function cadastrarTarefa() {
-        const n = document.getElementById('task-name').value;
-        const u = document.getElementById('task-user').value;
-        const f = document.getElementById('task-freq').value;
-        tarefas.push({id: Date.now(), nome: n, resp: u, freq: f});
-        localStorage.setItem('cn_tarefas', JSON.stringify(tarefas));
-        alert("Tarefa salva!");
-    }
+        document.getElementById('task-name').value = "";
+        alert("Tarefa salva na nuvem!");
+    };
 
-    // --- FUNÇÕES DO COLABORADOR ---
-    function abrirColab() {
-        document.getElementById('view-colab').classList.remove('hidden');
-        document.getElementById('boas-vindas').innerText = "Olá, " + usuarioLogado.nome;
-        renderizarTarefas();
-    }
-
-    function renderizarTarefas() {
-        const container = document.getElementById('lista-tarefas-hoje');
+    // OUVIR TAREFAS EM TEMPO REAL
+    function iniciarEscutaNuvem() {
         const hoje = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()];
-        const minhas = tarefas.filter(t => t.resp === usuarioLogado.nome && (t.freq === 'diaria' || t.freq === hoje));
-        
-        container.innerHTML = "<h4>Suas Tarefas de Hoje:</h4>";
-        if(minhas.length === 0) container.innerHTML += "<p>Tudo pronto por hoje!</p>";
-        
-        minhas.forEach(t => {
-            container.innerHTML += `
-                <div class="card">
-                    <span>${t.nome}</span>
-                    <button class="btn-action" style="width:auto" onclick="concluir('${t.id}')">OK</button>
-                </div>`;
+        const q = query(collection(db, "tarefas"), where("responsavel", "==", usuarioAtual));
+
+        onSnapshot(q, (snapshot) => {
+            const container = document.getElementById('lista-tarefas');
+            container.innerHTML = `<h3 style="color:#f39200; text-align:center">Atividades de Hoje</h3>`;
+            
+            let temTarefa = false;
+            snapshot.forEach((tDoc) => {
+                const t = tDoc.data();
+                if(t.freq === 'diaria' || t.freq === hoje) {
+                    temTarefa = true;
+                    container.innerHTML += `
+                        <div class="card">
+                            <div><strong>${t.nome}</strong></div>
+                            <button class="btn-action" style="width:auto; padding:10px" onclick="concluirCloud('${tDoc.id}', '${t.nome}')">OK</button>
+                        </div>`;
+                }
+            });
+            if(!temTarefa) container.innerHTML += "<p style='text-align:center; opacity:0.5'>Nenhuma tarefa pendente.</p>";
         });
     }
 
-    function concluir(id) {
-        const idx = tarefas.findIndex(t => t.id == id);
-        concluidasHoje.push(tarefas[idx].nome);
-        tarefas.splice(idx, 1);
-        localStorage.setItem('cn_tarefas', JSON.stringify(tarefas));
-        renderizarTarefas();
-    }
-
-    function enviarWhatsapp() {
-        const msg = `🏠 *CASA NOVA*\nRelatório de ${usuarioLogado.nome}:\n✅ ${concluidasHoje.join('\n✅ ')}`;
+    window.concluirCloud = async (id, nome) => {
+        await deleteDoc(doc(db, "tarefas", id));
+        const msg = `🏠 *CASA NOVA*\n✅ ${usuarioAtual} concluiu: ${nome}`;
         window.open(`https://wa.me/5562981962102?text=${encodeURIComponent(msg)}`, '_blank');
-    }
-
-    function alterarPropriaSenha() {
-        const n = prompt("Digite sua nova senha:");
-        if(n) {
-            const idx = usuarios.findIndex(u => u.nome === usuarioLogado.nome);
-            usuarios[idx].senha = n;
-            localStorage.setItem('cn_usuarios', JSON.stringify(usuarios));
-            alert("Senha alterada com sucesso!");
-        }
-    }
+    };
 </script>
 </body>
 </html>
