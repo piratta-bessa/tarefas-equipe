@@ -3,100 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casa Nova - Gestão de Tarefas</title>
+    <title>Casa Nova - Gestão</title>
     <style>
-        /* CSS Personalizado com as cores da Logo */
-        body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            background-color: #002855; /* Azul Escuro da Logo */
-            color: white;
-            margin: 0; 
-            padding: 20px; 
-        }
-        
+        body { font-family: sans-serif; background-color: #002855; color: white; margin: 0; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
+        h2 { text-align: center; margin-bottom: 5px; }
+        .sub-titulo { text-align: center; font-size: 0.8em; color: #f39200; font-weight: bold; margin-bottom: 20px; }
         
-        h2 { text-align: center; color: #ffffff; margin-bottom: 5px; }
-        .sub-titulo { text-align: center; font-size: 0.9em; color: #f39200; margin-bottom: 25px; text-transform: uppercase; font-weight: bold; }
-
+        /* Estilo dos Cards */
         .card { 
-            background: white; 
-            color: #333;
-            padding: 18px; 
-            border-radius: 15px; 
-            margin-bottom: 15px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-left: 8px solid #f39200; /* Laranja da Logo */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            background: white; color: #333; padding: 15px; border-radius: 12px; 
+            margin-bottom: 10px; display: flex; justify-content: space-between; 
+            align-items: center; border-left: 6px solid #f39200; 
         }
-
-        .btn-concluir { 
-            background: #f39200; 
-            color: white; 
-            border: none; 
-            padding: 12px 20px; 
-            border-radius: 10px; 
-            font-weight: bold; 
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-concluir:active { transform: scale(0.9); }
-
-        .admin-section { 
-            background: #ffffff; 
-            color: #333;
-            padding: 20px; 
-            border-radius: 15px; 
-            margin-bottom: 25px; 
-            display: none; 
-        }
-
-        input, select { 
-            width: 100%; padding: 12px; margin: 8px 0; 
-            border: 2px solid #002855; border-radius: 10px; 
-            box-sizing: border-box; font-size: 16px; 
-        }
-
-        .btn-add { 
-            width: 100%; background: #002855; color: white; 
-            border: none; padding: 14px; border-radius: 10px; 
-            font-weight: bold; cursor: pointer; 
-        }
-
-        .btn-whatsapp { 
-            width: 100%; background: #25D366; color: white; 
-            border: none; padding: 16px; border-radius: 10px; 
-            font-weight: bold; font-size: 16px; cursor: pointer; 
-            margin-top: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        .btn-gestor-toggle { 
-            background: transparent; color: white; 
-            border: 1px solid #f39200; padding: 8px; 
-            border-radius: 8px; width: 100%; 
-            margin-bottom: 20px; cursor: pointer; opacity: 0.7;
-        }
-
-        .info-colab { font-size: 0.85em; color: #666; font-weight: bold; }
+        
+        .admin-section { background: white; color: #333; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: none; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        
+        .btn-add { width: 100%; background: #002855; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-concluir { background: #f39200; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-gestor-toggle { background: rgba(255,255,255,0.1); color: white; border: 1px solid #f39200; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; margin-bottom: 20px; }
+        .btn-whatsapp { width: 100%; background: #25D366; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>CASA NOVA</h2>
-    <div class="sub-titulo">Local de Experiências</div>
+    <div class="sub-titulo">LOCAL DE EXPERIÊNCIAS</div>
 
-    <button class="btn-gestor-toggle" onclick="acessoGestor()">⚙️ Painel do Gestor</button>
+    <button class="btn-gestor-toggle" onclick="acessoGestor()">⚙️ PAINEL DO GESTOR</button>
 
     <div id="adminArea" class="admin-section">
-        <h3 style="margin-top:0">Nova Atividade</h3>
-        <input type="text" id="nomeTarefa" placeholder="O que precisa ser feito?">
-        <input type="text" id="responsavel" placeholder="Quem vai fazer?">
+        <h4 style="margin:0 0 10px 0">Nova Atividade</h4>
+        <input type="text" id="nomeTarefa" placeholder="Nome da tarefa">
+        <input type="text" id="responsavel" placeholder="Nome do colaborador">
         <select id="frequencia">
-            <option value="diaria">Repetir: Diariamente</option>
+            <option value="diaria">Diária (Todos os dias)</option>
             <option value="Monday">Segunda-feira</option>
             <option value="Tuesday">Terça-feira</option>
             <option value="Wednesday">Quarta-feira</option>
@@ -105,10 +48,12 @@
             <option value="Saturday">Sábado</option>
             <option value="Sunday">Domingo</option>
         </select>
-        <button class="btn-add" onclick="adicionarTarefa()">Salvar na Agenda</button>
+        <button class="btn-add" onclick="adicionarTarefa()">CADASTRAR</button>
+        <div id="debugLista" style="font-size: 11px; margin-top: 10px; color: #666;"></div>
     </div>
 
-    <div id="listaTarefas"></div>
+    <div id="listaTarefas">
+        </div>
 </div>
 
 <script>
@@ -116,23 +61,28 @@
     let concluidasHoje = [];
 
     function acessoGestor() {
-        const senha = prompt("Senha de Acesso:");
+        const senha = prompt("Senha:");
         if (senha === "1234") {
             const area = document.getElementById('adminArea');
             area.style.display = area.style.display === "block" ? "none" : "block";
-        } else { alert("Acesso negado."); }
+            atualizarListaAdmin();
+        }
     }
 
     function adicionarTarefa() {
         const nome = document.getElementById('nomeTarefa').value;
-        const resp = document.getElementById('responsavel').value.trim().toUpperCase();
+        const resp = document.getElementById('responsavel').value.trim();
         const freq = document.getElementById('frequencia').value;
 
-        if(!nome || !resp) return alert("Preencha todos os campos!");
+        if(!nome || !resp) return alert("Preencha os campos!");
 
         tarefas.push({ id: Date.now(), nome, resp, freq });
-        salvarERenderizar();
+        localStorage.setItem('tarefas', JSON.stringify(tarefas));
         document.getElementById('nomeTarefa').value = "";
+        
+        alert("Tarefa salva!");
+        renderizar();
+        atualizarListaAdmin();
     }
 
     function concluirTarefa(id) {
@@ -140,32 +90,57 @@
         if (index !== -1) {
             concluidasHoje.push(tarefas[index].nome);
             tarefas.splice(index, 1);
-            salvarERenderizar();
+            localStorage.setItem('tarefas', JSON.stringify(tarefas));
+            renderizar();
         }
     }
 
     function enviarWhatsapp() {
-        if (concluidasHoje.length === 0) return alert("Nenhuma tarefa concluída hoje.");
-        const msg = `🏠 *CASA NOVA - Relatório*\n\nAtividades concluídas:\n✅ ${concluidasHoje.join('\n✅ ')}`;
+        if (concluidasHoje.length === 0) return alert("Sem tarefas concluídas.");
+        const msg = `🏠 *CASA NOVA*\nRelatório de Atividades:\n✅ ${concluidasHoje.join('\n✅ ')}`;
         window.open(`https://wa.me/5562981962102?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
-    function salvarERenderizar() {
-        localStorage.setItem('tarefas', JSON.stringify(tarefas));
-        renderizar();
+    function atualizarListaAdmin() {
+        const debug = document.getElementById('debugLista');
+        debug.innerHTML = "<strong>Tarefas cadastradas no sistema:</strong><br>";
+        tarefas.forEach(t => {
+            debug.innerHTML += `- ${t.nome} (${t.resp}) [${t.freq}]<br>`;
+        });
     }
 
     function renderizar() {
         const lista = document.getElementById('listaTarefas');
-        const hoje = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()];
-        
-        lista.innerHTML = `<h3 style='color:#f39200'>Tarefas de Hoje</h3>`;
+        const diasSemana = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const hoje = diasSemana[new Date().getDay()];
 
-        const filtradas = tarefas.filter(t => t.freq === 'diaria' || t.freq === hoje);
+        // Filtrar tarefas de hoje
+        const hojeTarefas = tarefas.filter(t => t.freq === 'diaria' || t.freq === hoje);
 
-        filtradas.forEach(t => {
-            lista.innerHTML += `
-                <div class="card">
-                    <div>
-                        <div style="font-weight:bold; font-size:1.1em">${t.nome}</div>
-                        <div class="info-colab">👤 ${t.resp
+        let html = `<h3 style="color:#f39200; text-align:center;">Atividades de Hoje</h3>`;
+
+        if (hojeTarefas.length === 0) {
+            html += `<p style="text-align:center; opacity:0.6;">Nenhuma tarefa pendente para hoje.</p>`;
+        } else {
+            hojeTarefas.forEach(t => {
+                html += `
+                    <div class="card">
+                        <div>
+                            <div style="font-weight:bold">${t.nome}</div>
+                            <div style="font-size:0.8em; color:#666">👤 ${t.resp.toUpperCase()}</div>
+                        </div>
+                        <button class="btn-concluir" onclick="concluirTarefa(${t.id})">OK</button>
+                    </div>`;
+            });
+        }
+
+        html += `<button class="btn-whatsapp" onclick="enviarWhatsapp()">📱 ENVIAR RELATÓRIO</button>`;
+        lista.innerHTML = html;
+    }
+
+    // Iniciar
+    renderizar();
+</script>
+
+</body>
+</html>
