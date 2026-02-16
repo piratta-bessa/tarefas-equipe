@@ -5,16 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Tarefas Equipa</title>
     <style>
-        /* CSS: Estilo focado em telemóvel */
-        body { font-family: sans-serif; background: #f4f4f9; margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
-        h2 { color: #333; text-align: center; }
-        .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .btn-concluir { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
-        .admin-section { background: #e2e2e2; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn-add { width: 100%; background: #007bff; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; }
-        .dia-badge { font-size: 0.8em; background: #eee; padding: 3px 8px; border-radius: 10px; }
+        h2, h3 { color: #1c1e21; text-align: center; }
+        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #007bff; }
+        .btn-concluir { background: #28a745; color: white; border: none; padding: 12px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .admin-section { background: #ffffff; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #ddd; display: none; } /* Escondida por padrão */
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .btn-add { width: 100%; background: #007bff; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .btn-whatsapp { width: 100%; background: #25D366; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; }
+        .btn-gestor-toggle { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 20px; cursor: pointer; }
+        .dia-badge { font-size: 0.85em; color: #65676b; }
     </style>
 </head>
 <body>
@@ -22,50 +23,81 @@
 <div class="container">
     <h2>📋 Gestor de Equipa</h2>
 
-    <div class="admin-section">
-        <h3>Nova Tarefa (Gestor)</h3>
-        <input type="text" id="nomeTarefa" placeholder="Nome da tarefa">
-        <input type="text" id="responsavel" placeholder="Nome do colaborador">
+    <button class="btn-gestor-toggle" onclick="acessoGestor()">⚙️ Área do Gestor (Senha)</button>
+
+    <div id="adminArea" class="admin-section">
+        <h3>Nova Atividade</h3>
+        <input type="text" id="nomeTarefa" placeholder="Ex: Limpar balcão">
+        <input type="text" id="responsavel" placeholder="Nome do Colaborador">
         <select id="frequencia">
-            <option value="diaria">Diária</option>
+            <option value="diaria">Repetir: Todos os dias</option>
             <option value="Monday">Segunda-feira</option>
             <option value="Tuesday">Terça-feira</option>
             <option value="Wednesday">Quarta-feira</option>
             <option value="Thursday">Quinta-feira</option>
             <option value="Friday">Sexta-feira</option>
+            <option value="Saturday">Sábado</option>
+            <option value="Sunday">Domingo</option>
         </select>
-        <button class="btn-add" onclick="adicionarTarefa()">Adicionar à Lista</button>
+        <button class="btn-add" onclick="adicionarTarefa()">Cadastrar Atividade</button>
     </div>
 
-    <hr>
-
     <div id="listaTarefas">
-        <h3>Suas Tarefas de Hoje</h3>
         </div>
 </div>
 
 <script>
-    // Lógica em JavaScript
     let tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
+    let concluidasHoje = [];
+
+    // --- FUNÇÕES DO GESTOR ---
+    function acessoGestor() {
+        const senha = prompt("Digite a senha de gestor:");
+        if (senha === "1234") { // Podes alterar a senha aqui
+            const area = document.getElementById('adminArea');
+            area.style.display = area.style.display === "block" ? "none" : "block";
+        } else {
+            alert("Senha incorreta!");
+        }
+    }
 
     function adicionarTarefa() {
         const nome = document.getElementById('nomeTarefa').value;
-        const resp = document.getElementById('responsavel').value;
+        const resp = document.getElementById('responsavel').value.trim().toUpperCase();
         const freq = document.getElementById('frequencia').value;
 
-        if(!nome || !resp) return alert("Preencha tudo!");
+        if(!nome || !resp) return alert("Por favor, preencha todos os campos.");
 
         const nova = { id: Date.now(), nome, resp, freq };
         tarefas.push(nova);
         salvarERenderizar();
+        
+        // Limpar campos
+        document.getElementById('nomeTarefa').value = "";
+        alert("Tarefa adicionada!");
     }
 
+    // --- FUNÇÕES DO COLABORADOR ---
     function concluirTarefa(id) {
-        tarefas = tarefas.filter(t => t.id !== id);
-        alert("Tarefa concluída e enviada ao relatório!");
-        salvarERenderizar();
+        const index = tarefas.findIndex(t => t.id === id);
+        if (index !== -1) {
+            concluidasHoje.push(tarefas[index].nome);
+            tarefas.splice(index, 1);
+            salvarERenderizar();
+        }
     }
 
+    function enviarWhatsapp() {
+        if (concluidasHoje.length === 0) return alert("Nenhuma tarefa concluída ainda!");
+
+        const numeroGestor = "5562981962102";
+        const mensagem = `✅ *Relatório de Atividades*\n\nTarefas concluídas hoje:\n- ${concluidasHoje.join('\n- ')}`;
+        const url = `https://wa.me/${numeroGestor}?text=${encodeURIComponent(mensagem)}`;
+        
+        window.open(url, '_blank');
+    }
+
+    // --- MOTOR DO SISTEMA ---
     function salvarERenderizar() {
         localStorage.setItem('tarefas', JSON.stringify(tarefas));
         renderizar();
@@ -73,27 +105,37 @@
 
     function renderizar() {
         const lista = document.getElementById('listaTarefas');
-        const diasSemana = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        const hoje = diasSemana[new Date().getDay()];
+        const diasIngles = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const hoje = diasIngles[new Date().getDay()];
 
-        lista.innerHTML = '<h3>Suas Tarefas de Hoje</h3>';
+        lista.innerHTML = `<h3>Tarefas de Hoje (${hoje})</h3>`;
 
-        tarefas.forEach(t => {
-            if (t.freq === 'diaria' || t.freq === hoje) {
-                lista.innerHTML += `
-                    <div class="card">
-                        <div>
-                            <strong>${t.nome}</strong><br>
-                            <span class="dia-badge">${t.resp} | ${t.freq}</span>
-                        </div>
-                        <button class="btn-concluir" onclick="concluirTarefa(${t.id})">OK</button>
+        const tarefasFiltradas = tarefas.filter(t => t.freq === 'diaria' || t.freq === hoje);
+
+        if (tarefasFiltradas.length === 0) {
+            lista.innerHTML += '<p style="text-align:center; color:gray;">Nenhuma tarefa para este dispositivo hoje.</p>';
+        }
+
+        tarefasFiltradas.forEach(t => {
+            lista.innerHTML += `
+                <div class="card">
+                    <div>
+                        <strong>${t.nome}</strong><br>
+                        <span class="dia-badge">👤 ${t.resp}</span>
                     </div>
-                `;
-            }
+                    <button class="btn-concluir" onclick="concluirTarefa(${t.id})">OK</button>
+                </div>
+            `;
         });
+
+        // Adiciona o botão de WhatsApp sempre ao final
+        lista.innerHTML += `
+            <button class="btn-whatsapp" onclick="enviarWhatsapp()">
+                📱 Enviar Relatório por WhatsApp
+            </button>
+        `;
     }
 
-    // Iniciar
     renderizar();
 </script>
 
