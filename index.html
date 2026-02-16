@@ -3,144 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casa Nova - Gestão</title>
+    <title>Casa Nova - Sistema de Gestão</title>
     <style>
         body { font-family: sans-serif; background-color: #002855; color: white; margin: 0; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
-        h2 { text-align: center; margin-bottom: 5px; }
+        h2 { text-align: center; color: white; margin-bottom: 5px; }
         .sub-titulo { text-align: center; font-size: 0.8em; color: #f39200; font-weight: bold; margin-bottom: 20px; }
         
-        /* Estilo dos Cards */
-        .card { 
-            background: white; color: #333; padding: 15px; border-radius: 12px; 
-            margin-bottom: 10px; display: flex; justify-content: space-between; 
-            align-items: center; border-left: 6px solid #f39200; 
-        }
+        .card, .form-box { background: white; color: #333; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 6px solid #f39200; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         
-        .admin-section { background: white; color: #333; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: none; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .btn-primary { background: #002855; color: white; }
+        .btn-action { background: #f39200; color: white; }
+        .btn-whatsapp { background: #25D366; color: white; margin-top: 20px; }
+        .btn-outline { background: transparent; border: 1px solid #f39200; color: white; margin-bottom: 10px; }
         
-        .btn-add { width: 100%; background: #002855; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn-concluir { background: #f39200; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-gestor-toggle { background: rgba(255,255,255,0.1); color: white; border: 1px solid #f39200; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; margin-bottom: 20px; }
-        .btn-whatsapp { width: 100%; background: #25D366; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+        .hidden { display: none; }
+        .user-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>CASA NOVA</h2>
-    <div class="sub-titulo">LOCAL DE EXPERIÊNCIAS</div>
+    <div class="sub-titulo">SISTEMA DE ACESSO</div>
 
-    <button class="btn-gestor-toggle" onclick="acessoGestor()">⚙️ PAINEL DO GESTOR</button>
-
-    <div id="adminArea" class="admin-section">
-        <h4 style="margin:0 0 10px 0">Nova Atividade</h4>
-        <input type="text" id="nomeTarefa" placeholder="Nome da tarefa">
-        <input type="text" id="responsavel" placeholder="Nome do colaborador">
-        <select id="frequencia">
-            <option value="diaria">Diária (Todos os dias)</option>
-            <option value="Monday">Segunda-feira</option>
-            <option value="Tuesday">Terça-feira</option>
-            <option value="Wednesday">Quarta-feira</option>
-            <option value="Thursday">Quinta-feira</option>
-            <option value="Friday">Sexta-feira</option>
-            <option value="Saturday">Sábado</option>
-            <option value="Sunday">Domingo</option>
-        </select>
-        <button class="btn-add" onclick="adicionarTarefa()">CADASTRAR</button>
-        <div id="debugLista" style="font-size: 11px; margin-top: 10px; color: #666;"></div>
+    <div id="view-login" class="form-box">
+        <h3 style="margin-top:0">Login</h3>
+        <input type="text" id="login-user" placeholder="Nome de Utilizador">
+        <input type="password" id="login-pass" placeholder="Senha">
+        <button class="btn btn-primary" onclick="fazerLogin()">ENTRAR</button>
     </div>
 
-    <div id="listaTarefas">
+    <div id="view-colab" class="hidden">
+        <button class="btn btn-outline" onclick="logout()">Sair / Trocar Usuário</button>
+        <h3 id="boas-vindas" style="color: #f39200;"></h3>
+        <div id="lista-tarefas-hoje"></div>
+        <button class="btn btn-whatsapp" onclick="enviarWhatsapp()">📱 ENVIAR RELATÓRIO</button>
+        <hr>
+        <button class="btn btn-outline" style="font-size:12px" onclick="alterarPropriaSenha()">Alterar Minha Senha</button>
+    </div>
+
+    <div id="view-gestor" class="hidden">
+        <button class="btn btn-outline" onclick="logout()">Sair</button>
+        <h3 style="color: #f39200;">Painel Administrativo</h3>
+        
+        <div class="form-box" style="border-left-color: #002855;">
+            <h4>Criar Novo Usuário</h4>
+            <input type="text" id="new-username" placeholder="Nome do Colaborador">
+            <input type="password" id="new-password" placeholder="Senha Inicial">
+            <select id="new-role">
+                <option value="colab">Colaborador</option>
+                <option value="gestor">Gestor</option>
+            </select>
+            <button class="btn btn-primary" onclick="cadastrarUsuario()">CADASTRAR USUÁRIO</button>
         </div>
+
+        <div class="form-box" style="border-left-color: #002855;">
+            <h4>Gerenciar Usuários (Resetar Senha)</h4>
+            <div id="lista-usuarios-admin"></div>
+        </div>
+
+        <div class="form-box" style="border-left-color: #002855;">
+            <h4>Nova Tarefa</h4>
+            <input type="text" id="task-name" placeholder="Atividade">
+            <select id="task-user" placeholder="Para quem?"></select>
+            <select id="task-freq">
+                <option value="diaria">Diária</option>
+                <option value="Monday">Segunda</option><option value="Tuesday">Terça</option>
+                <option value="Wednesday">Quarta</option><option value="Thursday">Quinta</option>
+                <option value="Friday">Sexta</option><option value="Saturday">Sábado</option>
+                <option value="Sunday">Domingo</option>
+            </select>
+            <button class="btn btn-action" onclick="cadastrarTarefa()">SALVAR TAREFA</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    let tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
+    // Inicialização da "Base de Dados"
+    let usuarios = JSON.parse(localStorage.getItem('cn_usuarios')) || [
+        {nome: "ADMIN", senha: "123", role: "gestor"}
+    ];
+    let tarefas = JSON.parse(localStorage.getItem('cn_tarefas')) || [];
     let concluidasHoje = [];
+    let usuarioLogado = null;
 
-    function acessoGestor() {
-        const senha = prompt("Senha:");
-        if (senha === "1234") {
-            const area = document.getElementById('adminArea');
-            area.style.display = area.style.display === "block" ? "none" : "block";
-            atualizarListaAdmin();
-        }
+    // --- SISTEMA DE LOGIN ---
+    function fazerLogin() {
+        const u = document.getElementById('login-user').value.toUpperCase();
+        const p = document.getElementById('login-pass').value;
+        const user = usuarios.find(x => x.nome === u && x.senha === p);
+
+        if(user) {
+            usuarioLogado = user;
+            document.getElementById('view-login').classList.add('hidden');
+            if(user.role === 'gestor') {
+                abrirGestor();
+            } else {
+                abrirColab();
+            }
+        } else { alert("Usuário ou senha incorretos!"); }
     }
 
-    function adicionarTarefa() {
-        const nome = document.getElementById('nomeTarefa').value;
-        const resp = document.getElementById('responsavel').value.trim();
-        const freq = document.getElementById('frequencia').value;
+    function logout() { location.reload(); }
 
-        if(!nome || !resp) return alert("Preencha os campos!");
+    // --- FUNÇÕES DO GESTOR ---
+    function abrirGestor() {
+        document.getElementById('view-gestor').classList.remove('hidden');
+        atualizarListasAdmin();
+    }
 
-        tarefas.push({ id: Date.now(), nome, resp, freq });
-        localStorage.setItem('tarefas', JSON.stringify(tarefas));
-        document.getElementById('nomeTarefa').value = "";
+    function cadastrarUsuario() {
+        const n = document.getElementById('new-username').value.toUpperCase();
+        const s = document.getElementById('new-password').value;
+        const r = document.getElementById('new-role').value;
+        if(!n || !s) return alert("Preencha tudo!");
         
-        alert("Tarefa salva!");
-        renderizar();
-        atualizarListaAdmin();
+        usuarios.push({nome: n, senha: s, role: r});
+        localStorage.setItem('cn_usuarios', JSON.stringify(usuarios));
+        alert("Usuário cadastrado!");
+        atualizarListasAdmin();
     }
 
-    function concluirTarefa(id) {
-        const index = tarefas.findIndex(t => t.id === id);
-        if (index !== -1) {
-            concluidasHoje.push(tarefas[index].nome);
-            tarefas.splice(index, 1);
-            localStorage.setItem('tarefas', JSON.stringify(tarefas));
-            renderizar();
+    function resetarSenha(nome) {
+        const novaS = prompt("Digite a nova senha para " + nome);
+        if(novaS) {
+            const idx = usuarios.findIndex(u => u.nome === nome);
+            usuarios[idx].senha = novaS;
+            localStorage.setItem('cn_usuarios', JSON.stringify(usuarios));
+            alert("Senha alterada!");
         }
     }
 
-    function enviarWhatsapp() {
-        if (concluidasHoje.length === 0) return alert("Sem tarefas concluídas.");
-        const msg = `🏠 *CASA NOVA*\nRelatório de Atividades:\n✅ ${concluidasHoje.join('\n✅ ')}`;
-        window.open(`https://wa.me/5562981962102?text=${encodeURIComponent(msg)}`, '_blank');
-    }
-
-    function atualizarListaAdmin() {
-        const debug = document.getElementById('debugLista');
-        debug.innerHTML = "<strong>Tarefas cadastradas no sistema:</strong><br>";
-        tarefas.forEach(t => {
-            debug.innerHTML += `- ${t.nome} (${t.resp}) [${t.freq}]<br>`;
+    function atualizarListasAdmin() {
+        const listaU = document.getElementById('lista-usuarios-admin');
+        const selectU = document.getElementById('task-user');
+        listaU.innerHTML = "";
+        selectU.innerHTML = "";
+        
+        usuarios.forEach(u => {
+            listaU.innerHTML += `<div class="user-item"><span>${u.nome} (${u.role})</span> <button onclick="resetarSenha('${u.nome}')">Senha 🔑</button></div>`;
+            selectU.innerHTML += `<option value="${u.nome}">${u.nome}</option>`;
         });
     }
 
-    function renderizar() {
-        const lista = document.getElementById('listaTarefas');
-        const diasSemana = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        const hoje = diasSemana[new Date().getDay()];
-
-        // Filtrar tarefas de hoje
-        const hojeTarefas = tarefas.filter(t => t.freq === 'diaria' || t.freq === hoje);
-
-        let html = `<h3 style="color:#f39200; text-align:center;">Atividades de Hoje</h3>`;
-
-        if (hojeTarefas.length === 0) {
-            html += `<p style="text-align:center; opacity:0.6;">Nenhuma tarefa pendente para hoje.</p>`;
-        } else {
-            hojeTarefas.forEach(t => {
-                html += `
-                    <div class="card">
-                        <div>
-                            <div style="font-weight:bold">${t.nome}</div>
-                            <div style="font-size:0.8em; color:#666">👤 ${t.resp.toUpperCase()}</div>
-                        </div>
-                        <button class="btn-concluir" onclick="concluirTarefa(${t.id})">OK</button>
-                    </div>`;
-            });
-        }
-
-        html += `<button class="btn-whatsapp" onclick="enviarWhatsapp()">📱 ENVIAR RELATÓRIO</button>`;
-        lista.innerHTML = html;
+    function cadastrarTarefa() {
+        const n = document.getElementById('task-name').value;
+        const u = document.getElementById('task-user').value;
+        const f = document.getElementById('task-freq').value;
+        tarefas.push({id: Date.now(), nome: n, resp: u, freq: f});
+        localStorage.setItem('cn_tarefas', JSON.stringify(tarefas));
+        alert("Tarefa salva!");
     }
 
-    // Iniciar
-    renderizar();
-</script>
+    // --- FUNÇÕES DO COLABORADOR ---
+    function abrirColab() {
+        document.getElementById('view-colab').classList.remove('hidden');
+        document.getElementById('boas-vindas').innerText = "Olá, " + usuarioLogado.nome;
+        renderizarTarefas();
+    }
 
+    function renderizarTarefas() {
+        const container = document.getElementById('lista-tarefas-hoje');
+        const hoje = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()];
+        const minhas = tarefas.filter(t => t.resp === usuarioLogado.nome && (t.freq === 'diaria' || t.freq === hoje));
+        
+        container.innerHTML = "<h4>Suas Tarefas de Hoje:</h4>";
+        if(minhas.length === 0) container.innerHTML += "<p>Tudo pronto por hoje!</p>";
+        
+        minhas.forEach(t => {
+            container.innerHTML += `
+                <div class="card">
+                    <span>${t.nome}</span>
+                    <button class="btn-action" style="width:auto" onclick="concluir('${t.id}')">OK</button>
+                </div>`;
+        });
+    }
+
+    function concluir(id) {
+        const idx = tarefas.findIndex(t => t.id == id);
+        concluidasHoje.push(tarefas[idx].nome);
+        tarefas.splice(idx, 1);
+        localStorage.setItem('cn_tarefas', JSON.stringify(tarefas));
+        renderizarTarefas();
+    }
+
+    function enviarWhatsapp() {
+        const msg = `🏠 *CASA NOVA*\nRelatório de ${usuarioLogado.nome}:\n✅ ${concluidasHoje.join('\n✅ ')}`;
+        window.open(`https://wa.me/5562981962102?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function alterarPropriaSenha() {
+        const n = prompt("Digite sua nova senha:");
+        if(n) {
+            const idx = usuarios.findIndex(u => u.nome === usuarioLogado.nome);
+            usuarios[idx].senha = n;
+            localStorage.setItem('cn_usuarios', JSON.stringify(usuarios));
+            alert("Senha alterada com sucesso!");
+        }
+    }
+</script>
 </body>
 </html>
