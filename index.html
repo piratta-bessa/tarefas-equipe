@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Tarefas Equipa</title>
+    <style>
+        /* CSS: Estilo focado em telemóvel */
+        body { font-family: sans-serif; background: #f4f4f9; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: auto; }
+        h2 { color: #333; text-align: center; }
+        .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .btn-concluir { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+        .admin-section { background: #e2e2e2; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn-add { width: 100%; background: #007bff; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; }
+        .dia-badge { font-size: 0.8em; background: #eee; padding: 3px 8px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📋 Gestor de Equipa</h2>
+
+    <div class="admin-section">
+        <h3>Nova Tarefa (Gestor)</h3>
+        <input type="text" id="nomeTarefa" placeholder="Nome da tarefa">
+        <input type="text" id="responsavel" placeholder="Nome do colaborador">
+        <select id="frequencia">
+            <option value="diaria">Diária</option>
+            <option value="Monday">Segunda-feira</option>
+            <option value="Tuesday">Terça-feira</option>
+            <option value="Wednesday">Quarta-feira</option>
+            <option value="Thursday">Quinta-feira</option>
+            <option value="Friday">Sexta-feira</option>
+        </select>
+        <button class="btn-add" onclick="adicionarTarefa()">Adicionar à Lista</button>
+    </div>
+
+    <hr>
+
+    <div id="listaTarefas">
+        <h3>Suas Tarefas de Hoje</h3>
+        </div>
+</div>
+
+<script>
+    // Lógica em JavaScript
+    let tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
+
+    function adicionarTarefa() {
+        const nome = document.getElementById('nomeTarefa').value;
+        const resp = document.getElementById('responsavel').value;
+        const freq = document.getElementById('frequencia').value;
+
+        if(!nome || !resp) return alert("Preencha tudo!");
+
+        const nova = { id: Date.now(), nome, resp, freq };
+        tarefas.push(nova);
+        salvarERenderizar();
+    }
+
+    function concluirTarefa(id) {
+        tarefas = tarefas.filter(t => t.id !== id);
+        alert("Tarefa concluída e enviada ao relatório!");
+        salvarERenderizar();
+    }
+
+    function salvarERenderizar() {
+        localStorage.setItem('tarefas', JSON.stringify(tarefas));
+        renderizar();
+    }
+
+    function renderizar() {
+        const lista = document.getElementById('listaTarefas');
+        const diasSemana = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const hoje = diasSemana[new Date().getDay()];
+
+        lista.innerHTML = '<h3>Suas Tarefas de Hoje</h3>';
+
+        tarefas.forEach(t => {
+            if (t.freq === 'diaria' || t.freq === hoje) {
+                lista.innerHTML += `
+                    <div class="card">
+                        <div>
+                            <strong>${t.nome}</strong><br>
+                            <span class="dia-badge">${t.resp} | ${t.freq}</span>
+                        </div>
+                        <button class="btn-concluir" onclick="concluirTarefa(${t.id})">OK</button>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    // Iniciar
+    renderizar();
+</script>
+
+</body>
+</html>
