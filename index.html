@@ -3,18 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casa Nova - Cloud</title>
+    <title>Casa Nova - Gestão Cloud</title>
     <style>
-        body { font-family: sans-serif; background-color: #002855; color: white; margin: 0; padding: 20px; }
+        /* Identidade Visual Casa Nova */
+        body { font-family: 'Segoe UI', sans-serif; background-color: #002855; color: white; margin: 0; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
-        h2 { text-align: center; margin-bottom: 5px; }
+        h2 { text-align: center; margin-bottom: 5px; letter-spacing: 2px; }
         .sub-titulo { text-align: center; font-size: 0.8em; color: #f39200; font-weight: bold; margin-bottom: 25px; }
-        .card { background: white; color: #333; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid #f39200; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        .form-box { background: white; color: #333; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        .btn-action { width: 100%; background: #f39200; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .btn-outline { background: transparent; border: 1px solid #f39200; color: white; width: 100%; padding: 10px; border-radius: 8px; margin-bottom: 20px; cursor: pointer; }
+        
+        /* Cartões e Formulários */
+        .card, .form-box { background: white; color: #333; padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .card { display: flex; justify-content: space-between; align-items: center; border-left: 8px solid #f39200; }
+        
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
+        
+        /* Botões */
+        .btn-action { width: 100%; background: #f39200; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .btn-action:active { transform: scale(0.98); }
+        .btn-ok { width: auto; padding: 10px 20px; margin-left: 10px; }
+        .btn-outline { background: transparent; border: 1px solid #f39200; color: white; width: 100%; padding: 10px; border-radius: 8px; margin-bottom: 20px; cursor: pointer; font-size: 12px; }
+        
         .hidden { display: none; }
+        .loader { text-align: center; opacity: 0.6; font-style: italic; }
     </style>
 </head>
 <body>
@@ -24,31 +34,32 @@
     <div class="sub-titulo">LOCAL DE EXPERIÊNCIAS</div>
 
     <div id="view-login" class="form-box">
-        <h3 style="margin:0 0 15px 0; color:#002855">Entrar</h3>
-        <input type="text" id="user-name" placeholder="Seu Nome (Maiúsculo)">
-        <button class="btn-action" onclick="fazerLogin()">ACESSAR</button>
+        <h3 style="margin-top:0; color:#002855">Acesso</h3>
+        <input type="text" id="user-name" placeholder="Digite seu nome (MAIÚSCULO)">
+        <button class="btn-action" onclick="fazerLogin()">ENTRAR</button>
     </div>
 
     <div id="view-app" class="hidden">
-        <button class="btn-outline" onclick="location.reload()">⬅ Sair / Trocar Usuário</button>
+        <button class="btn-outline" onclick="location.reload()">⬅ SAIR / TROCAR USUÁRIO</button>
         
-        <div id="panel-admin" class="form-box hidden">
-            <h4 style="margin:0 0 10px 0; color:#002855">Cadastrar Tarefa na Nuvem</h4>
-            <input type="text" id="task-name" placeholder="Atividade">
-            <input type="text" id="task-dest" placeholder="Para qual Colaborador?">
+        <div id="panel-admin" class="form-box hidden" style="border-left: 8px solid #002855;">
+            <h4 style="margin-top:0; color:#002855">Painel do Gestor</h4>
+            <input type="text" id="task-name" placeholder="Nome da Atividade">
+            <input type="text" id="task-dest" placeholder="Nome do Colaborador">
             <select id="task-freq">
-                <option value="diaria">Diária</option>
-                <option value="Monday">Segunda</option><option value="Tuesday">Terça</option>
-                <option value="Wednesday">Quarta</option><option value="Thursday">Quinta</option>
-                <option value="Friday">Sexta</option><option value="Saturday">Sábado</option>
+                <option value="diaria">Repetir: Diariamente</option>
+                <option value="Monday">Segunda-feira</option>
+                <option value="Tuesday">Terça-feira</option>
+                <option value="Wednesday">Quarta-feira</option>
+                <option value="Thursday">Quinta-feira</option>
+                <option value="Friday">Sexta-feira</option>
+                <option value="Saturday">Sábado</option>
                 <option value="Sunday">Domingo</option>
             </select>
-            <button class="btn-action" id="btn-save">ENVIAR PARA NUVEM</button>
+            <button class="btn-action" id="btn-save" style="background:#002855">CADASTRAR NA NUVEM</button>
         </div>
 
-        <div id="lista-tarefas">
-            <p style="text-align:center">Carregando tarefas da nuvem...</p>
-        </div>
+        <div id="lista-tarefas" class="loader">Conectando à nuvem...</div>
     </div>
 </div>
 
@@ -56,14 +67,15 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, query, where, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // --- COLA AS TUAS CREDENCIAIS AQUI ---
+    // Suas credenciais oficiais
     const firebaseConfig = {
-        apiKey: "SUA_API_KEY",
-        authDomain: "SEU_PROJETO.firebaseapp.com",
-        projectId: "SEU_PROJETO",
-        storageBucket: "SEU_PROJETO.appspot.com",
-        messagingSenderId: "SEU_ID",
-        appId: "SEU_APP_ID"
+        apiKey: "AIzaSyAsuBXKA54vf3OFugGHdgWM1j6TEpzfKns",
+        authDomain: "casa-nova-gestao.firebaseapp.com",
+        projectId: "casa-nova-gestao",
+        storageBucket: "casa-nova-gestao.firebasestorage.app",
+        messagingSenderId: "709880753385",
+        appId: "1:709880753385:web:1eabd2c9a867c4aa4d9478",
+        measurementId: "G-S88087CYR9"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -73,10 +85,10 @@
 
     window.fazerLogin = function() {
         const nome = document.getElementById('user-name').value.trim().toUpperCase();
-        if(!nome) return alert("Digite seu nome!");
+        if(!nome) return alert("Por favor, digite seu nome.");
 
         if(nome === "ADMIN") {
-            const senha = prompt("Senha de Gestor:");
+            const senha = prompt("Senha do Gestor:");
             if(senha !== "1234") return alert("Senha incorreta!");
             document.getElementById('panel-admin').classList.remove('hidden');
         }
@@ -84,57 +96,63 @@
         usuarioAtual = nome;
         document.getElementById('view-login').classList.add('hidden');
         document.getElementById('view-app').classList.remove('hidden');
-        iniciarEscutaNuvem();
+        escutarTarefasNuvem();
     }
 
-    // SALVAR NA NUVEM
+    // Gravar nova tarefa
     document.getElementById('btn-save').onclick = async () => {
         const nome = document.getElementById('task-name').value;
         const para = document.getElementById('task-dest').value.trim().toUpperCase();
         const freq = document.getElementById('task-freq').value;
 
-        if(!nome || !para) return alert("Preencha tudo!");
+        if(!nome || !para) return alert("Preencha todos os campos!");
 
-        await addDoc(collection(db, "tarefas"), {
-            nome: nome,
-            responsavel: para,
-            freq: freq,
-            timestamp: Date.now()
-        });
-
-        document.getElementById('task-name').value = "";
-        alert("Tarefa salva na nuvem!");
+        try {
+            await addDoc(collection(db, "tarefas"), {
+                nome: nome,
+                responsavel: para,
+                freq: freq,
+                criadoEm: Date.now()
+            });
+            document.getElementById('task-name').value = "";
+            alert("Sucesso! Tarefa enviada.");
+        } catch (e) { alert("Erro ao salvar: " + e); }
     };
 
-    // OUVIR TAREFAS EM TEMPO REAL
-    function iniciarEscutaNuvem() {
-        const hoje = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()];
+    // Sincronização em Tempo Real
+    function escutarTarefasNuvem() {
+        const diasIngles = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const hoje = diasIngles[new Date().getDay()];
+        
         const q = query(collection(db, "tarefas"), where("responsavel", "==", usuarioAtual));
 
         onSnapshot(q, (snapshot) => {
             const container = document.getElementById('lista-tarefas');
-            container.innerHTML = `<h3 style="color:#f39200; text-align:center">Atividades de Hoje</h3>`;
+            container.innerHTML = `<h3 style="color:#f39200; text-align:center">Suas Tarefas de Hoje</h3>`;
             
-            let temTarefa = false;
+            let contador = 0;
             snapshot.forEach((tDoc) => {
                 const t = tDoc.data();
                 if(t.freq === 'diaria' || t.freq === hoje) {
-                    temTarefa = true;
+                    contador++;
                     container.innerHTML += `
                         <div class="card">
-                            <div><strong>${t.nome}</strong></div>
-                            <button class="btn-action" style="width:auto; padding:10px" onclick="concluirCloud('${tDoc.id}', '${t.nome}')">OK</button>
+                            <div><strong style="font-size:1.1em">${t.nome}</strong></div>
+                            <button class="btn-action btn-ok" onclick="concluirTarefaCloud('${tDoc.id}', '${t.nome}')">OK</button>
                         </div>`;
                 }
             });
-            if(!temTarefa) container.innerHTML += "<p style='text-align:center; opacity:0.5'>Nenhuma tarefa pendente.</p>";
+            if(contador === 0) container.innerHTML += "<p style='text-align:center; opacity:0.6'>Tudo limpo por aqui! Nenhuma tarefa.</p>";
         });
     }
 
-    window.concluirCloud = async (id, nome) => {
-        await deleteDoc(doc(db, "tarefas", id));
-        const msg = `🏠 *CASA NOVA*\n✅ ${usuarioAtual} concluiu: ${nome}`;
-        window.open(`https://wa.me/5562981962102?text=${encodeURIComponent(msg)}`, '_blank');
+    window.concluirTarefaCloud = async (id, nomeTarefa) => {
+        if(confirm(`Confirmar conclusão de: ${nomeTarefa}?`)) {
+            await deleteDoc(doc(db, "tarefas", id));
+            // Envio automático para o seu WhatsApp
+            const msg = `🏠 *CASA NOVA*\n✅ *${usuarioAtual}* concluiu a tarefa: _${nomeTarefa}_`;
+            window.open(`https://wa.me/5562981962102?text=${encodeURIComponent(msg)}`, '_blank');
+        }
     };
 </script>
 </body>
