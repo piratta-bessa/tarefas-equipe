@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casa Nova - Gestão Pro</title>
+    <title>Casa Nova - Gestão v2</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #002855; color: white; margin: 0; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
@@ -19,30 +19,29 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <h2>CASA NOVA</h2>
     <div class="sub-titulo">LOCAL DE EXPERIÊNCIAS</div>
 
     <div id="view-login" class="form-box">
-        <h3 style="margin-top:0; color:#002855">Acesso Restrito</h3>
+        <h3 style="margin-top:0; color:#002855">Login Equipa</h3>
         <input type="text" id="user-name" placeholder="NOME (MAIÚSCULO)">
         <input type="password" id="user-pass" placeholder="SENHA">
         <button class="btn-action" onclick="fazerLogin()">ENTRAR</button>
     </div>
 
     <div id="view-app" class="hidden">
-        <button class="btn-outline" onclick="location.reload()">⬅ SAIR / TROCAR CONTA</button>
+        <button class="btn-outline" onclick="location.reload()">⬅ SAIR</button>
         
         <div id="panel-admin" class="form-box hidden" style="border-left: 8px solid #002855;">
-            <h4 style="margin:0; color:#002855">1. Gerir Equipa</h4>
-            <input type="text" id="new-colab-name" placeholder="Nome do Colaborador">
+            <h4 style="color:#002855">1. Novo Colaborador</h4>
+            <input type="text" id="new-colab-name" placeholder="Nome">
             <input type="password" id="new-colab-pass" placeholder="Senha">
-            <button class="btn-action" id="btn-add-colab" style="background:#002855; margin-bottom:10px;">CADASTRAR MEMBRO</button>
-            <div id="lista-colaboradores-admin" style="margin-bottom: 20px;"></div>
+            <button class="btn-action" id="btn-add-colab" style="background:#002855; margin-bottom:10px;">CADASTRAR</button>
+            <div id="lista-colaboradores-admin" style="max-height: 120px; overflow-y: auto;"></div>
 
-            <h4 style="margin:10px 0; color:#002855">2. Nova Tarefa Recorrente</h4>
-            <input type="text" id="task-name" placeholder="O que deve ser feito?">
+            <h4 style="color:#002855; margin-top:20px;">2. Nova Tarefa</h4>
+            <input type="text" id="task-name" placeholder="Atividade">
             <select id="task-dest-select"><option value="">Carregando...</option></select>
             <select id="task-freq">
                 <option value="diaria">Todo dia</option>
@@ -53,8 +52,8 @@
             </select>
             <button class="btn-action" id="btn-save-task">ENVIAR TAREFA</button>
 
-            <h4 style="margin:20px 0 10px 0; color:#002855">3. Gerir Tarefas Ativas</h4>
-            <div id="lista-tarefas-admin"></div>
+            <h4 style="color:#002855; margin-top:20px;">3. Gerir Tarefas</h4>
+            <div id="lista-tarefas-admin" style="max-height: 150px; overflow-y: auto;"></div>
         </div>
 
         <div id="lista-tarefas-colab"></div>
@@ -81,30 +80,17 @@
     window.fazerLogin = async function() {
         const nome = document.getElementById('user-name').value.trim().toUpperCase();
         const pass = document.getElementById('user-pass').value;
-
-        if(nome === "ADMIN" && pass === "1234") {
-            usuarioLogado = "ADMIN";
-            entrarNoApp(true);
-            return;
-        }
-
+        if(nome === "ADMIN" && pass === "1234") { usuarioLogado = "ADMIN"; entrarNoApp(true); return; }
         const q = query(collection(db, "usuarios"), where("nome", "==", nome), where("senha", "==", pass));
         const snapshot = await getDocs(q);
-
-        if(!snapshot.empty) {
-            usuarioLogado = nome;
-            entrarNoApp(false);
-        } else { alert("Acesso negado!"); }
+        if(!snapshot.empty) { usuarioLogado = nome; entrarNoApp(false); } 
+        else { alert("Acesso negado!"); }
     }
 
     function entrarNoApp(isAdmin) {
         document.getElementById('view-login').classList.add('hidden');
         document.getElementById('view-app').classList.remove('hidden');
-        if(isAdmin) {
-            document.getElementById('panel-admin').classList.remove('hidden');
-            escutarUsuarios();
-            escutarTodasTarefasAdmin();
-        }
+        if(isAdmin) { escutarUsuarios(); escutarTodasTarefasAdmin(); document.getElementById('panel-admin').classList.remove('hidden'); }
         escutarTarefasColab();
     }
 
@@ -112,86 +98,68 @@
     document.getElementById('btn-add-colab').onclick = async () => {
         const n = document.getElementById('new-colab-name').value.trim().toUpperCase();
         const s = document.getElementById('new-colab-pass').value;
-        if(!n || !s) return alert("Preencha os campos!");
-        await addDoc(collection(db, "usuarios"), { nome: n, senha: s });
-        document.getElementById('new-colab-name').value = "";
-        document.getElementById('new-colab-pass').value = "";
+        if(n && s) await addDoc(collection(db, "usuarios"), { nome: n, senha: s });
+        document.getElementById('new-colab-name').value = ""; document.getElementById('new-colab-pass').value = "";
     };
 
     function escutarUsuarios() {
         onSnapshot(collection(db, "usuarios"), (snapshot) => {
             const lista = document.getElementById('lista-colaboradores-admin');
             const select = document.getElementById('task-dest-select');
-            lista.innerHTML = "";
-            select.innerHTML = '<option value="">Selecionar Colaborador...</option>';
+            lista.innerHTML = ""; select.innerHTML = '<option value="">Selecionar...</option>';
             snapshot.forEach((uDoc) => {
                 const u = uDoc.data();
-                lista.innerHTML += `<div class="item-lista"><span>👤 ${u.nome}</span><button class="btn-danger" onclick="removerUsuario('${uDoc.id}')">Apagar</button></div>`;
+                lista.innerHTML += `<div class="item-lista"><span>${u.nome}</span><button class="btn-danger" onclick="removerUsuario('${uDoc.id}')">X</button></div>`;
                 select.innerHTML += `<option value="${u.nome}">${u.nome}</option>`;
             });
         });
     }
 
-    window.removerUsuario = async (id) => { if(confirm("Remover este colaborador?")) await deleteDoc(doc(db, "usuarios", id)); };
+    window.removerUsuario = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "usuarios", id)); };
 
-    // GESTÃO DE TAREFAS (ADMIN)
+    // TAREFAS
     function escutarTodasTarefasAdmin() {
         onSnapshot(collection(db, "tarefas"), (snapshot) => {
-            const listaAdmin = document.getElementById('lista-tarefas-admin');
-            listaAdmin.innerHTML = "";
+            const lista = document.getElementById('lista-tarefas-admin');
+            lista.innerHTML = "";
             snapshot.forEach((tDoc) => {
                 const t = tDoc.data();
-                listaAdmin.innerHTML += `
-                    <div class="item-lista">
-                        <span><strong>${t.nome}</strong> (${t.responsavel})</span>
-                        <button class="btn-danger" onclick="removerTarefa('${tDoc.id}')">Eliminar</button>
-                    </div>`;
+                lista.innerHTML += `<div class="item-lista"><span>${t.nome} (${t.responsavel})</span><button class="btn-danger" onclick="removerTarefa('${tDoc.id}')">X</button></div>`;
             });
         });
     }
 
-    window.removerTarefa = async (id) => { if(confirm("Deseja excluir esta tarefa permanentemente?")) await deleteDoc(doc(db, "tarefas", id)); };
+    window.removerTarefa = async (id) => { if(confirm("Apagar tarefa?")) await deleteDoc(doc(db, "tarefas", id)); };
 
     document.getElementById('btn-save-task').onclick = async () => {
         const n = document.getElementById('task-name').value;
         const p = document.getElementById('task-dest-select').value;
         const f = document.getElementById('task-freq').value;
-        if(!n || !p) return alert("Dados incompletos!");
-        await addDoc(collection(db, "tarefas"), { nome: n, responsavel: p, freq: f, ultimaConclusao: "" });
+        if(n && p) await addDoc(collection(db, "tarefas"), { nome: n, responsavel: p, freq: f, ultimaConclusao: "" });
         document.getElementById('task-name').value = "";
-        alert("Tarefa salva!");
     };
 
-    // ÁREA DO COLABORADOR (LÓGICA INTELIGENTE)
     function escutarTarefasColab() {
-        const diasIngles = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        const hojeNome = diasIngles[new Date().getDay()];
-        const hojeData = new Date().toLocaleDateString('pt-BR');
+        const dias = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const hojeNome = dias[new Date().getDay()];
+        const hojeDataISO = new Date().toISOString().split('T')[0];
 
         const q = query(collection(db, "tarefas"), where("responsavel", "==", usuarioLogado));
-
         onSnapshot(q, (snapshot) => {
             const container = document.getElementById('lista-tarefas-colab');
             container.innerHTML = `<h3 style="color:#f39200; text-align:center">Minhas Atividades</h3>`;
-            let count = 0;
             snapshot.forEach((tDoc) => {
                 const t = tDoc.data();
-                if((t.freq === 'diaria' || t.freq === hojeNome) && t.ultimaConclusao !== hojeData) {
-                    count++;
-                    container.innerHTML += `
-                        <div class="card">
-                            <span><strong>${t.nome}</strong></span>
-                            <button class="btn-action" style="width:auto; padding:10px" onclick="concluirTarefa('${tDoc.id}', '${t.nome}')">OK</button>
-                        </div>`;
+                if((t.freq === 'diaria' || t.freq === hojeNome) && t.ultimaConclusao !== hojeDataISO) {
+                    container.innerHTML += `<div class="card"><span><strong>${t.nome}</strong></span><button class="btn-action" style="width:auto;" onclick="concluirTarefa('${tDoc.id}', '${t.nome}')">OK</button></div>`;
                 }
             });
-            if(count === 0) container.innerHTML += "<p style='text-align:center; opacity:0.6'>Parabéns! Tudo feito por hoje. ✨</p>";
         });
     }
 
     window.concluirTarefa = async (id, nome) => {
-        const hojeData = new Date().toLocaleDateString('pt-BR');
-        await updateDoc(doc(db, "tarefas", id), { ultimaConclusao: hojeData });
+        const hojeDataISO = new Date().toISOString().split('T')[0];
+        await updateDoc(doc(db, "tarefas", id), { ultimaConclusao: hojeDataISO });
         window.open(`https://wa.me/5562981962102?text=${encodeURIComponent("🏠 CASA NOVA\n✅ "+usuarioLogado+" concluiu: "+nome)}`, '_blank');
     };
 </script>
